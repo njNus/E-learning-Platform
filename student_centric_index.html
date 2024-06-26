@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Attendance Form</title>
+    <script src="https://smtpjs.com/v3/smtp.js"></script>
+    <style>
+        /* Add your existing CSS styles here */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #84b7f4, #a7e7d9);
+            color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            background: linear-gradient(to right, #4A90E2, #50E3C2);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        form label {
+            display: block;
+            margin-bottom: 5px;
+            text-align: left;
+        }
+
+        form input,
+        form textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        button[type="submit"] {
+            background: linear-gradient(to right, #023d85, #01241c);
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        .otp-dialog {
+            flex: 0 0 35%;
+            max-width: 400px;
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            position: relative;
+            top: 0;
+            left: 0;
+            transform: none;
+        }
+
+        .otp-dialog h2 {
+            margin-top: 0;
+        }
+
+        .otp-dialog input {
+            width: 100px;
+            padding: 5px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .otp-dialog p {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Daily Attendance Form</h1>
+        <div class="content-wrapper">
+            <div class="attendance-form">
+                <form id="checkInForm">
+                    <label for="studentId">Student ID:</label>
+                    <input type="text" id="studentId" name="studentId" required>
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                    
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                    <label for="date">Date:</label>
+                    <input type="date" id="date" name="date" required>
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+            <div class="otp-dialog" style="display: none;">
+                <h2>OTP Verification</h2>
+                <input type="text" id="otpInput" maxlength="6" placeholder="Enter OTP">
+                <p>Please enter the verification code sent to your email: <span id="emailAddress"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let success = false;
+
+        const form = document.getElementById('checkInForm');
+        const otpDialog = document.querySelector('.otp-dialog');
+        const otpInput = document.getElementById('otpInput');
+        const emailAddressSpan = document.getElementById('emailAddress');
+
+        let sessionUsername = null;
+        let sessionEmail = null;
+
+        // Fetch the session username and email
+        fetch('get_session_username.php')
+            .then(response => response.json())
+            .then(data => {
+                sessionUsername = data.username;
+                sessionEmail = data.email;
+                console.log("Session Username:", sessionUsername);
+                console.log("Session Email:", sessionEmail);
+            })
+            .catch(error => {
+                console.error('Error fetching session data:', error);
+            });
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            const email = document.getElementById('email').value;
+            const username = document.getElementById('username').value;
+
+            console.log("Form Username:", username);
+            console.log("Form Email:", email);
+
+            // Check if the form email and username match the session email and username
+            if (username !== sessionUsername || email !== sessionEmail) {
+                alert('The username or email provided does not match the session username or email.');
+                return;
+            }
+
+            emailAddressSpan.textContent = email; // Display the email address in the OTP dialog
+
+            // Send the OTP to the user's email
+            fetch('generate_otp.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({
+                    email
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+            });
+
+            otpDialog.style.display = 'block'; // Show the OTP dialog
+        });
+
+        otpInput.addEventListener('input', function() {
+            if (otpInput.value.length !== 6) {
+                return;
+            }
+
+            const email = document.getElementById('email').value;
+
+            let payload = {
+                email: email,
+                otp: otpInput.value
+            };
+            fetch('verify_otp.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.success) {
+                    alert('Congratulations!');
+                    success = true;
+                    otpDialog.style.display = 'none'; // Hide the OTP dialog
+
+                    const studentId = document.getElementById('studentId').value;
+                    const username = document.getElementById('username').value;
+                    const email = document.getElementById('email').value;
+                    const date = document.getElementById('date').value;
+
+                    // Send attendance data to the server
+                    fetch('student_centric_submit_attendance.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: new URLSearchParams({
+                            studentId,
+                            username,
+                            email,
+                            date
+                        })
+                    }).then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Attendance recorded successfully!');
+                        } else {
+                            alert('Failed to record attendance.');
+                        }
+                    });
+                } else {
+                    alert('Invalid OTP. Please try again.');
+                    otpInput.value = ''; // Clear the input field
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+

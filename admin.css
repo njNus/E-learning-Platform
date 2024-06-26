@@ -1,0 +1,90 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+.admin{
+    color:rgb(41, 52, 65);
+    
+    }
+
+.header {
+    background: linear-gradient(to right, #4A90E2, #50E3C2);
+    color: white;
+    line-height: 70px;
+    padding-left: 30px;
+    font-size: 45px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+a, a:hover {
+    text-decoration: none !important;
+}
+
+.logout {
+    float: right;
+    font-size: 20px;
+    padding-right: 30px;
+    color: white;
+}
+
+ul {
+    background: linear-gradient(to right, #023d85, #01241c);
+    width: 16%;
+    height: 100vh;
+    position: fixed;
+    font-weight: bold;
+    text-align: center;
+    padding-top: 30px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+ul li {
+    list-style: none;
+    padding-bottom: 30px;
+    font-size: 18px;
+}
+
+ul li a {
+    color: white;
+    font-weight: bold;
+    display: block;
+    padding: 10px 0;
+    transition: color 0.3s, background-color 0.3s;
+}
+
+ul li a:hover {
+    color: #50E3C2;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+}
+
+.content {
+    margin-left: 18%;
+    padding: 30px;
+    background: #F9F9F9;
+    min-height: 100vh;
+    transition: margin-left 0.3s;
+}
+
+.header, .content {
+    transition: padding 0.3s;
+}
+
+@media (max-width: 768px) {
+    ul {
+        width: 40%;
+    }
+    .content {
+        margin-left: 42%;
+    }
+    .header {
+        padding-left: 15px;
+        font-size: 35px;
+    }
+    .logout {
+        padding-right: 15px;
+        font-size: 18px;
+    }
+}

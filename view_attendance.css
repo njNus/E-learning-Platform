@@ -1,0 +1,61 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(to right, #80ace1, #94ecd9);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Date Selection */
+#attendance_date {
+    display: block;
+    margin: 0 auto;
+    padding: 5px;
+    font-size: 16px;
+}
+
+/* Student List */
+#studentList {
+    margin-top: 20px;
+}
+
+table {
+    width: 80%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #100e0e;
+}
+
+th {
+    background: linear-gradient(to right, #023d85, #01241c);
+    color: #ddd;
+}
+td{
+    background: linear-gradient(to right, #80ace1, #c4eae1);
+}
+
+
+/* Attendance Status */
+
+.present {
+    color: green ;
+}
+
+.absent {
+    color: red ;
+}
+
+
+.no-record {
+    color: #999;
+}

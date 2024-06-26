@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #7dafe7, #95efdc);
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: linear-gradient(to right, #4A90E2, #50E3C2);
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: black;
+        }
+
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .attendance-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .attendance-table th, .attendance-table td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .attendance-table th {
+            background: linear-gradient(to right, #023d85, #01241c);
+            color: white;
+        }
+
+        
+
+        .attendance-table tr:hover {
+            background-color: #ddd;
+        }
+
+        .attendance-table th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+        }
+
+        .attendance-table td {
+            vertical-align: top;
+            background: linear-gradient(to right, #acf3e4, #92b6df);
+
+        }
+
+        @media (max-width: 600px) {
+            .attendance-table, .attendance-table thead, .attendance-table tbody, .attendance-table th, .attendance-table td, .attendance-table tr {
+                display: block;
+            }
+
+            .attendance-table tr {
+                margin-bottom: 15px;
+            }
+
+            .attendance-table th, .attendance-table td {
+                text-align: right;
+                padding-left: 50%;
+                position: relative;
+            }
+
+            .attendance-table th::before, .attendance-table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 0;
+                width: 50%;
+                padding-left: 15px;
+                font-weight: bold;
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="monthTitle">Monthly Attendance</h1>
+        <div class="controls">
+            <label for="monthPicker">Choose a month: </label>
+            <input type="month" id="monthPicker">
+        </div>
+        <table class="attendance-table" id="attendanceTable">
+            <thead>
+                <tr>
+                    <th>Student ID</th>
+                    <th>Username</th>
+                    <th>Date</th>
+                    <th>Email</th>
+                    
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const monthPicker = document.getElementById('monthPicker');
+            const monthTitle = document.getElementById('monthTitle');
+            const attendanceTableBody = document.getElementById('attendanceTable').querySelector('tbody');
+
+            monthPicker.addEventListener('change', function() {
+                const selectedMonth = monthPicker.value;
+                if (selectedMonth) {
+                    const [year, month] = selectedMonth.split('-');
+                    monthTitle.textContent = `Monthly Attendance for ${new Date(year, month - 1).toLocaleString('default', { month: 'long' })}`;
+                    fetchAttendanceRecords(selectedMonth);
+                }
+            });
+
+            function fetchAttendanceRecords(month) {
+                fetch(`student_fetch_monthly_attendance.php?month=${month}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        attendanceTableBody.innerHTML = '';
+
+                        data.forEach(record => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td data-label="Student ID">${record.student_id}</td>
+                                <td data-label="Username">${record.username}</td>
+                                <td data-label="Date">${record.date}</td>
+                                <td data-label="Email">${record.email}</td>
+                               
+                            `;
+                            attendanceTableBody.appendChild(row);
+                        });
+                    })
+                    .catch(err => console.error('Error fetching attendance data:', err));
+            }
+        });
+    </script>
+</body>
+</html>
